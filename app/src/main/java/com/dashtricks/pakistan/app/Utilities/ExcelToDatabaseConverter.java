@@ -3,7 +3,6 @@ package com.dashtricks.pakistan.app.Utilities;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.io.File;
@@ -21,14 +20,13 @@ import jxl.read.biff.BiffException;
 
 public class ExcelToDatabaseConverter extends SQLiteOpenHelper{
     Workbook w;
-    HashMap<String,List<String>> tableToFields;
+    HashMap<String,List<String>> tableToFields; // maps from a table name to the fields it has
 
-    public ExcelToDatabaseConverter(Context context, String name,
-                                    CursorFactory factory, int version, String wbname) {
-        super(context, name, factory, version);
+    public ExcelToDatabaseConverter(Context context, String name, File wbfile) {
+        super(context, name, null, 1); // don't care about the last two fields
         tableToFields = new HashMap<String, List<String>>();
         try {
-            w = Workbook.getWorkbook(new File(wbname));
+            w = Workbook.getWorkbook(wbfile);
         } catch (BiffException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -38,12 +36,11 @@ public class ExcelToDatabaseConverter extends SQLiteOpenHelper{
         }
     }
 
-
     @Override
-	/* 
-	 * Given the database,
-	 * create one table per sheet in the data
-	 * */
+    /*
+     * Given the database,
+     * create one table per sheet in the data
+     * */
     public void onCreate(SQLiteDatabase db) {
         Sheet[] sheets = w.getSheets();
 
@@ -54,6 +51,7 @@ public class ExcelToDatabaseConverter extends SQLiteOpenHelper{
             db.execSQL(String.format("CREATE TABLE %s (%s);", name, entriesAndTypes));
             List<String> eAndT = Arrays.asList(entriesAndTypes.split(" "));
             int i = 0;
+
 //            Keep the table name and fields, strip out the type information
             for(Iterator<String> it = eAndT.iterator(); it.hasNext();) {
                 it.next();
@@ -67,7 +65,7 @@ public class ExcelToDatabaseConverter extends SQLiteOpenHelper{
         }
     }
 
-    //    Each sheet becomes a table
+//    Each sheet becomes a table
 //    The topmost row became the list of fields during db creation
 //    Iterate over each cell of each sheet, insert it into the right place
     public void slurp() {
@@ -107,8 +105,8 @@ public class ExcelToDatabaseConverter extends SQLiteOpenHelper{
             sb.append(parseCellType(s.getCell(i, offset)));
             sb.append(", ");
         }
-		
-		/* remove trailing comma and space */
+
+        /* remove trailing comma and space */
         sb.deleteCharAt(sb.length() - 1);
         sb.deleteCharAt(sb.length() - 1);
 

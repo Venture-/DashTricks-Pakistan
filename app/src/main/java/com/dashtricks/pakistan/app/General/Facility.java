@@ -8,59 +8,63 @@ import java.util.Set;
  */
 public class Facility {
     private String name;
-    private String facId;
-    private double latitude;
-    private double longitude;
-    private Set<PowerSource> powerSources;
-    
+    private int facId;
+    private String subdis;
+    private double currentCapacity; // no direct set. Updated by adding refrigerators
+    private double requiredCapacity; // Should ONLY be set with a value returned by the Calculator
+    private double amountShortBy;
+    private double percentDeficient;
     private int population;
-    private int deliveriesPerYear;
+    private Set<PowerSource> powerSources;
+    private Set<Refrigerator> refrigerators;
 
     // All these things 
-    public Facility(String name, String facId,
-		            double latitude, double longitude,
-                    Set<PowerSource> ps, int deliveriesPerYear) {
+    public Facility(String name, int facId, Set<PowerSource> ps) {
         this.name = name;
         this.facId = facId;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.powerSources = ps;
-        this.deliveriesPerYear = deliveriesPerYear;
+
     }
 
     public String getName() {
-	return name;
+    return name;
     }
     
-    public String getFacId() {
-	return facId;
-    }
-    
-    public double getLatitude() {
-	return latitude;
-    }
-    
-    public double getLongitude() {
-	return longitude;
+    public int getFacId() {
+        return facId;
     }
 
     public boolean canUseSource(PowerSource p) {
-	return powerSources.contains(p);
+        return powerSources.contains(p);
     }
 
     public void setPopulation(int population) {
         this.population = population;
     }
 
+
     public int getPopulation() {
         return population;
     }
 
-    public int getDeliveriesPerYear() {
-        return deliveriesPerYear;
+    // Done because Calculator imports Facility, and circular dependencies are ugly
+    public void setRequiredCapacity(double rc){
+        requiredCapacity = rc;
+        amountShortBy = rc - currentCapacity;
+        percentDeficient = (1 - currentCapacity/requiredCapacity) * 100;
     }
 
-    public boolean canUseRefrigerator(Refrigerator r) {
+    public double getRequiredCapacity() {
+        return requiredCapacity;
+    }
+
+    public String getSubdis() {
+        return subdis;
+    }
+
+    public boolean canUseRefrigerator(Refrigerator r){
+        //One day will be used to prevent refrigerators from being allocated to incorrect locations
+        //for now, stub.
         return true;
     }
 }

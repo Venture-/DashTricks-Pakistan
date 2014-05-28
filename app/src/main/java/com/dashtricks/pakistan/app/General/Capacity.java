@@ -17,21 +17,23 @@ public class Capacity {
         quantities = new HashMap<Refrigerator, Integer>(old);
     }
 
-    public double totalVolume() {
-        double sum = 0.0;
-        for (Map.Entry<Refrigerator, Integer> entry : quantities.entrySet()) {
-            sum += entry.getValue() * entry.getKey().getVolume();
+    public double getTotalCapacity() {
+        double sum = 0;
+        for (Refrigerator r : quantities.keySet()) {
+            int quantity = quantities.get(r);
+            sum += r.getVolume() * quantity;
         }
         return sum;
     }
 
-    public Capacity add(Refrigerator allocated) {
-        Capacity copy = new Capacity(quantities);
-        if (quantities.containsKey(allocated)) {
-            copy.quantities.put(allocated, quantities.get(allocated) + 1);
+    public Capacity add(Refrigerator r) {
+        Capacity ret = new Capacity(quantities);
+
+        if (quantities.containsKey(r)) {
+            ret.quantities.put(r, quantities.get(r) + 1);
         } else {
-            copy.quantities.put(allocated, 1);
+            ret.quantities.put(r, 1);
         }
-        return copy;
+        return ret;
     }
 }

@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class AllocationDriver {
     public static Map<Facility, Capacity> allocate(Map<Facility, Capacity> initialState,
-                                                   Map<Facility, Integer> requiredCapacity,
+                                                   Map<Facility, Double> requiredCapacity,
                                                    Map<Refrigerator, Integer> toAllocate) {
 
         Prioritizer prioritizer = new NaivePrioritizer(initialState, requiredCapacity);

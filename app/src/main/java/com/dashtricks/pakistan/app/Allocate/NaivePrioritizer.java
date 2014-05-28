@@ -15,21 +15,21 @@ import java.util.Map;
  * Created by Donohue on 5/7/14.
  */
 public class NaivePrioritizer implements Prioritizer {
-    private Map<Facility, Integer> requiredCapacity;
+    private Map<Facility, Double> requiredCapacity;
     private List<Facility> rankedFacilities;
     private Map<Facility, Capacity> currentState;
 
     private final Comparator<Facility> rankByMissingVolume;
 
-    public NaivePrioritizer(Map<Facility, Capacity> initialState, final Map<Facility, Integer> requiredCapacity) {
+    public NaivePrioritizer(Map<Facility, Capacity> initialState, final Map<Facility, Double> requiredCapacity) {
         currentState = new HashMap<Facility, Capacity>(initialState);
         this.requiredCapacity = requiredCapacity;
 
         rankByMissingVolume = new Comparator<Facility>() {
             @Override
             public int compare(Facility facility1, Facility facility2) {
-                double f2CapacityDeficit = requiredCapacity.get(facility2) - currentState.get(facility2).totalVolume();
-                double f1CapacityDeficit = requiredCapacity.get(facility1) - currentState.get(facility1).totalVolume();
+                double f2CapacityDeficit = requiredCapacity.get(facility2) - currentState.get(facility2).getTotalCapacity();
+                double f1CapacityDeficit = requiredCapacity.get(facility1) - currentState.get(facility1).getTotalCapacity();
                 return (int) Math.signum(f2CapacityDeficit - f1CapacityDeficit);
             }
         };
@@ -63,7 +63,7 @@ public class NaivePrioritizer implements Prioritizer {
 
     @Override
     public double currentTotalCapacity() {
-        return currentState.get(rankedFacilities.get(0)).totalVolume();
+        return currentState.get(rankedFacilities.get(0)).getTotalCapacity();
     }
 
     @Override
