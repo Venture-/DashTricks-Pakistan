@@ -1,9 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    tools:context="com.dashtricks.pakistan.app.VisualizationActivity" >
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="horizontal"
+tools:context="com.dashtricks.pakistan.app.UrgentNeedBarGraphActivity" >
 
     <WebView  xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/webview"
@@ -12,7 +12,7 @@
         android:longClickable="false" />
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/visualizationFragmentContainer"
+        android:id="@+id/urgentNeedFragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
