@@ -11,24 +11,21 @@ public class Facility {
     private String facId;
     private double latitude;
     private double longitude;
-    private double currentCapacity; // no direct set. Updated by adding refrigerators
-    private double requiredCapacity; // Should ONLY be set with a value returned by the Calculator
     private Set<PowerSource> powerSources;
     
     private int population;
-    private Set<RefrigeratorTypeAndCount> refrigerators;
+    private int deliveriesPerYear;
 
     // All these things 
     public Facility(String name, String facId,
-		    double latitude, double longitude, Set<PowerSource> ps) {
-	this.name = name;
-	this.facId = facId;
-	this.latitude = latitude;
-	this.longitude = longitude;
-	this.powerSources = ps;
-	currentCapacity = 0;
-	requiredCapacity = 0;
-        refrigerators = new HashSet<RefrigeratorTypeAndCount>();
+		            double latitude, double longitude,
+                    Set<PowerSource> ps, int deliveriesPerYear) {
+        this.name = name;
+        this.facId = facId;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.powerSources = ps;
+        this.deliveriesPerYear = deliveriesPerYear;
     }
 
     public String getName() {
@@ -55,27 +52,15 @@ public class Facility {
         this.population = population;
     }
 
-    public void addRefrigerator(RefrigeratorTypeAndCount refrigerator) {
-        refrigerators.add(refrigerator);
-    	currentCapacity += refrigerator.getType().getVolume() * refrigerator.getCount();
-    }
-
     public int getPopulation() {
         return population;
     }
 
-    // No setter method because this is calculated based on refrigerators
-    public double getCurrentCapacity() {
-	    return currentCapacity;
+    public int getDeliveriesPerYear() {
+        return deliveriesPerYear;
     }
 
-    // Done because Calculator imports Facility, and circular dependencies are ugly
-    public void setRequiredCapacity(double rc){
-	requiredCapacity = rc;
+    public boolean canUseRefrigerator(Refrigerator r) {
+        return true;
     }
-
-    public double getRequiredCapacity() {
-	return requiredCapacity;
-    }
-    
 }

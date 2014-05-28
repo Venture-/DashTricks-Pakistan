@@ -1,42 +1,65 @@
 package com.dashtricks.pakistan.app.Allocate;
 
-import com.dashtricks.pakistan.app.General.RefrigeratorTypeAndCount;
-import com.dashtricks.pakistan.app.Model.VolumeRequirement;
-import com.dashtricks.pakistan.app.Model.VolumeRequirementBuilder;
+import com.dashtricks.pakistan.app.General.Capacity;
+import com.dashtricks.pakistan.app.General.Facility;
+import com.dashtricks.pakistan.app.General.Refrigerator;
 
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by Donohue on 5/7/14.
  */
 public class AllocationDriver {
-    public static Set<VolumeRequirement> allocate(Set<VolumeRequirement> beforeAllocation, Set<RefrigeratorTypeAndCount> rtacs) {
-        //TODO Hmmm the whole VR and VRbuilder thing didn't work out as well as I thought it would
-        // Should be aggressivly refactored. The important consideration (and reason I did it this way)
-        // is that we can't destroy / overwrite the "beforeAllocation" results. Best way might just
-        // be to deep copy the set at the beginning and update freely from there
+    public static Map<Facility, Capacity> allocate(Map<Facility, Capacity> initialState,
+                                                   Map<Facility, Integer> requiredCapacity,
+                                                   Map<Refrigerator, Integer> toAllocate) {
 
-        Prioritizer p = new NaivePrioritizer(beforeAllocation);
-        while (!rtacs.isEmpty()) {
-            VolumeRequirementBuilder current = p.remove();
-            current.subract(getAppropriateRefrigerator(current, rtacs)); // TODO should be modifying the facility and not the volume requirement
-            p.add(current); // TODO will need to deal with facilities that can't be allocated to
+        Prioritizer prioritizer = new NaivePrioritizer(initialState, requiredCapacity);
+        Map<Refrigerator, Integer> remainingToAllocate = new HashMap<Refrigerator, Integer>(toAllocate);
+
+        while ( !(prioritizer.done() || toAllocate.isEmpty()) ) {
+            Facility currentFacility = prioritizer.next();
+            double shortage = requiredCapacity.get(currentFacility) - prioritizer.currentTotalCapacity();
+
+            Refrigerator grantedRefrigerator = getAppropriateRefrigerator(currentFacility, shortage, remainingToAllocate.keySet());
+
+            if (grantedRefrigerator != null) {
+                remainingToAllocate.put(grantedRefrigerator, remainingToAllocate.get(grantedRefrigerator) - 1);
+                if (remainingToAllocate.get(grantedRefrigerator) == 0) {
+                    remainingToAllocate.remove(grantedRefrigerator);
+                }
+
+                prioritizer.add(grantedRefrigerator);
+            } else {
+                prioritizer.leave();
+            }
         }
-
-        return p.done();
+        return prioritizer.result();
     }
 
-    private static double getAppropriateRefrigerator(VolumeRequirementBuilder current, Set<RefrigeratorTypeAndCount> rtacs) {
-        // current will matter in the future for this.
-        Iterator<RefrigeratorTypeAndCount> ittr = rtacs.iterator();
-        RefrigeratorTypeAndCount rtac = ittr.next();
-        if (rtac.getCount() == 1) {
-            ittr.remove();
-        }
+    // If a facilities shortage may be covered with a single refrigerator allocate the smallest
+    // refrigerator that does so.
+    // Otherwise allocate the largest refrigerator possible that may be used.
+    private static Refrigerator getAppropriateRefrigerator(Facility currentFacility, double shortage, Set<Refrigerator> remainingToAllocate) {
+        Refrigerator bestFit = null;
+        for (Refrigerator r : remainingToAllocate) {
+            if (!currentFacility.canUseRefrigerator(r)) {
+                continue;
+            }
+            if (bestFit == null) {
+                bestFit = r;
+                continue;
+            }
 
-        rtac.setCount(rtac.getCount() - 1);
-        return rtac.getType().getVolume();
+            if ((r.getVolume() > shortage && r.getVolume() < bestFit.getVolume())
+                    || (r.getVolume() < shortage && r.getVolume() > bestFit.getVolume())) {
+                bestFit = r;
+            }
+        }
+        return bestFit;
     }
+
+
 }

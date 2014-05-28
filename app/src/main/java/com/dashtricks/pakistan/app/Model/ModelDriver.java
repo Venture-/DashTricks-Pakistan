@@ -5,24 +5,25 @@ import com.dashtricks.pakistan.app.General.Facility;
 import com.dashtricks.pakistan.app.General.ImmunizationPlan;
 import com.dashtricks.pakistan.app.General.ImmunizationPlans;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by Donohue on 5/7/14.
  */
 public class ModelDriver {
-    public static Set<VolumeRequirement> getRequirements(Facilities fs, ImmunizationPlans ips) {
-        Set<VolumeRequirement> ret = new HashSet<VolumeRequirement>();
+    public static Map<Facility, Integer> getRequirements(Facilities fs, ImmunizationPlans ips) {
+        Map<Facility, Integer> ret = new HashMap<Facility, Integer>();
 
         for (Facility f : fs) {
-            VolumeRequirementBuilder vrb = new VolumeRequirementBuilder(f);
+            int requiredVolume = 0;
             for (ImmunizationPlan ip : ips) {
-                vrb.add(Calculator.computeVolume(f, ip));
+                requiredVolume += Calculator.computeVolume(f, ip);
             }
-            ret.add(vrb.resolve());
+            ret.put(f, requiredVolume);
         }
-
         return ret;
     }
 }
